@@ -8,6 +8,9 @@
       "webRoot": "${workspaceRoot}/src",
       "sourceMapPathOverrides": {
         "webpack:///src/*": "${webRoot}/*"
-      }
+      },
+      "skipFiles": [
+        "node_modules/**"
+      ]
     }]
   }

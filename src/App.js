@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Route , Switch } from 'react-router-dom'
+import { HashRouter as Router, Route , Switch } from 'react-router-dom'
 import Header from './components/layouts/Header'
 import Contacts from './components/contacts/Contacts'
 import AddContact from './components/contacts/AddContact'
@@ -8,7 +8,8 @@ import About from './components/pages/About'
 import NotFound from './components/pages/NotFound'
 import Test from './components/pages/Test'
 import EditContact from './components/contacts/EditContact'
-import { Provider } from './context'
+import store from './store'
+import { Provider } from 'react-redux'
 
 
 
@@ -23,23 +24,23 @@ class App extends Component {
 
   render(){
     return (
-      <Provider>
-        <Router>
-          <div>
-            <Header/>
-            <div className="container">
-              <Switch>
-                <Route exact path="/" component={Contacts}/>
-                <Route exact path="/about" component={About}/>
-                <Route exact path="/contact/add" component={AddContact}/>
-                <Route exact path="/test" component={Test}/>
-                <Route exact path="/contact/edit/:id" component={EditContact}/>
-                <Route component={NotFound}/>
-              </Switch>
+      <Provider store={store}>
+          <Router>
+            <div>
+              <Header/>
+              <div className="container">
+                <Switch>
+                  <Route exact path="/" component={Contacts}/>
+                  <Route exact path="/about" component={About}/>
+                  <Route exact path="/contact/add" component={AddContact}/>
+                  <Route exact path="/test" component={Test}/>
+                  <Route exact path="/contact/edit/:id" component={EditContact}/>
+                  <Route component={NotFound}/>
+                </Switch>
+              </div>
             </div>
-          </div>
-        </Router>
-      </Provider>
+          </Router>
+        </Provider>
     )
   }
 

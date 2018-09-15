@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import TextInputgroup from '../layouts/TextInputgroup'
-import { Consumer } from '../../context'
 import axios from 'axios';
+import { connect } from 'react-redux'
+import { getSingleProfile, updateProfile } from '../../actions/contactActions'
+import loading from '../../rolling.gif'
 
 class EditContact extends Component {
 
@@ -12,10 +14,41 @@ class EditContact extends Component {
             name : '',
             email : '',
             phone : '',
-            errors : {}
+            id : '',
+            errors : {},
+            isLoading : true,
+            isFirstTime : true
         }
 
         console.log('this.props.location.data :', this.props.location.data);
+
+    }
+
+
+    componentWillReceiveProps(nextProps, nextState){
+        const { name , email , phone } = nextProps.profile
+        const { isFirstTime } = this.state
+        const isLoading = nextProps.isLoading
+        
+
+
+        if(isFirstTime){
+            this.setState({ name , email , phone , isLoading , isFirstTime : false})
+        }else {
+            // clear states 
+            this.setState(
+                {
+                    name : '',
+                    email : '',
+                    phone : '',
+                    errors : {}
+                }
+            )
+            this.props.history.push('/')
+        }
+        // setTimeout(()=>{
+        //     this.setState({ name , email , phone , isLoading })
+        // },500)
 
     }
 
@@ -26,11 +59,11 @@ class EditContact extends Component {
         })
     }
 
-    onAddContactClick = (dispatch,e) => {
+    onAddContactClick = (e) => {
 
 
         e.preventDefault()
-        const { name , email , phone } = this.state
+        let { name , email , phone  } = this.state
         //const p = {name , email , phone}
         let errors = {}
         
@@ -50,21 +83,20 @@ class EditContact extends Component {
             this.setState({ errors })
             return
         }
+        
+        let data = this.state
+
+        if (!this.props.location.data.id){
+            return
+        }
+        data.id = this.props.location.data.id
 
 
+        this.props.updateProfile(data)
         
 
-        // clear states 
-        this.setState(
-            {
-                name : '',
-                email : '',
-                phone : '',
-                errors : {}
-            }
-        )
-
-        this.props.history.push('/')
+        
+        
         //console.log('this.state :', this.state);
         //console.log('name :', name);
     }
@@ -76,14 +108,17 @@ class EditContact extends Component {
 
         if(p){
             if (p.id.toString().length === 1){
-                this.getDataFronAPI(this.props)
+                this.props.getSingleProfile(p.id)
+                //this.getDataFronAPI(this.props)
             }else {
                 const { id, name , profileDetail } = p
                 const { email , phone } = profileDetail
-                this.setState({ name , email , phone })
+                this.setState({ name , email , phone , id })
             }
         }else {
-            this.getDataFronAPI(this.props)        
+            const { id } = this.props.match.params
+            this.props.getSingleProfile(id)
+            //this.getDataFronAPI(this.props)        
         }
 
         
@@ -93,75 +128,78 @@ class EditContact extends Component {
         const { id } = p.match.params
         const res = await axios.get(`https://jsonplaceholder.typicode.com/users/${id}`)
         const {name , email , phone} = res.data
-        this.setState({ name , email , phone })
+        setTimeout(()=>{
+            this.setState({ name , email , phone , id})
+        },3000)
+        
     }
 
 
 
     render(){
 
-        const { name , email , phone, errors } = this.state
+        const { name , email , phone, errors , isLoading } = this.state
 
         return (
-
-            <Consumer>
-                {
-                    value => (
-
+            <div>
+                { isLoading ? (<img src={loading} alt="Loading..." style={{ width : '100px' , margin : 'auto', display : 'block' , marginTop : '200px'}}/>) : (
                         <div className="card mt-4 mb-3">
-                            <div className="card-header">
-                                <h3>Edit Contacts</h3>
-                            </div>
-                            <div className="card-body">
-                                <form onSubmit={this.onAddContactClick.bind(this,value.dispatch)}>
-
-                                    <TextInputgroup
-                                        name = "name" 
-                                        label = "Name"
-                                        value = {name}
-                                        placeholder = "Enter Name"
-                                        type = "text" 
-                                        onChange = {this.onChange}
-                                        error = { errors.name }
-                                    />
-
-                                    <TextInputgroup
-                                        name = "email" 
-                                        label = "Email"
-                                        value = {email}
-                                        placeholder = "Enter Email"
-                                        type = "email" 
-                                        onChange = {this.onChange}
-                                        error = { errors.email }
-                                    />
-
-                                    <TextInputgroup
-                                        name = "phone" 
-                                        label = "Phone"
-                                        value = {phone}
-                                        placeholder = "Enter Phone"
-                                        type = "text" 
-                                        onChange = {this.onChange}
-                                        error = { errors.phone }
-                                    />
-
-                                    <input type="submit" value="Edit Contact"
-                                        className="btn btn-success"
-                                    />
-
-                                </form>
-                            </div>
+                        <div className="card-header">
+                            <h3>Update Contact</h3>
                         </div>
-
-                    )
-                }
-
-
-            
-
-            </Consumer>
+                        <div className="card-body">
+                            <form onSubmit={this.onAddContactClick.bind(this)}>
+    
+                                <TextInputgroup
+                                    name = "name" 
+                                    label = "Name"
+                                    value = {name}
+                                    placeholder = "Enter Name"
+                                    type = "text" 
+                                    onChange = {this.onChange}
+                                    error = { errors.name }
+                                />
+    
+                                <TextInputgroup
+                                    name = "email" 
+                                    label = "Email"
+                                    value = {email}
+                                    placeholder = "Enter Email"
+                                    type = "email" 
+                                    onChange = {this.onChange}
+                                    error = { errors.email }
+                                />
+    
+                                <TextInputgroup
+                                    name = "phone" 
+                                    label = "Phone"
+                                    value = {phone}
+                                    placeholder = "Enter Phone"
+                                    type = "text" 
+                                    onChange = {this.onChange}
+                                    error = { errors.phone }
+                                />
+    
+                                <input type="submit" value="Update Contact"
+                                    className="btn btn-success"
+                                />
+    
+                            </form>
+                        </div>
+                    </div>
+                )}
+            </div>
         )
     }
 }
+// receving end
+const mapStateToProps = (state) => {
+    const data = {
+        profile : state.profile.profile,
+        isLoading : state.profile.isLoading
+    }
+    return data
+}
 
-export default EditContact
+
+export default connect(mapStateToProps,{getSingleProfile , updateProfile})(EditContact)

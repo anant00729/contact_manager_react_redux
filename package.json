@@ -1,16 +1,22 @@
 {
   "name": "test-react-app",
   "version": "0.1.0",
+  "homepage": "https://anant00729.github.io/contactManager",
   "private": true,
   "dependencies": {
     "axios": "^0.18.0",
     "classnames": "^2.2.6",
+    "gh-pages": "^1.2.0",
     "react": "^16.5.0",
     "react-dom": "^16.5.0",
+    "react-redux": "^5.0.7",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "1.1.5"
+    "react-scripts": "1.1.5",
+    "redux": "^4.0.0",
+    "redux-thunk": "^2.3.0"
   },
   "scripts": {
+    "deploy": "npm run build&&gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
